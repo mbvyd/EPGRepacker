@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <RuntimeIdentifier>$(MyRuntimeIdentifier)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="DOTNET_ENVIRONMENT" Value="Production" />
+  </ItemGroup>
+
+</Project>

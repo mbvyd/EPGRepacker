@@ -1,0 +1,6 @@
+/.vs/
+/**/bin/
+/**/obj/
+/build/
+/**/Config/
+**/*.csproj.user
