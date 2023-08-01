@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using Serilog;
@@ -16,7 +15,7 @@ public class XmlParser
     private const string _programme = "programme";
     private const string _id = "id";
 
-    private IEnumerable<string>? _channels;
+    private HashSet<string>? _channels;
 
     public void ParseGzip(string sourceFile, string resultFile, string channelsFile)
     {
@@ -42,7 +41,16 @@ public class XmlParser
 
     private void InitChannels(string channelsFile)
     {
-        _channels = File.ReadLines(channelsFile);
+        using var reader = new StreamReader(channelsFile);
+
+        _channels = new();
+
+        string line;
+
+        while ((line = reader.ReadLine()!) != null)
+        {
+            _channels.Add(line);
+        }
     }
 
     private void Parse(XmlReader reader, XmlWriter writer)
@@ -276,8 +284,7 @@ public class XmlParser
 
         if (reader.HasAttributes && reader.MoveToAttribute(attributeName))
         {
-            if (_channels!.Any(c =>
-                c.Equals(reader.Value, StringComparison.OrdinalIgnoreCase)))
+            if (_channels!.Contains(reader.Value))
             {
                 result = true;
             }
