@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml;
+using Configuration.Models;
 using Serilog;
 using Shared.Logger;
 
@@ -15,7 +16,20 @@ public class XmlParser
     private const string _programme = "programme";
     private const string _id = "id";
 
+    private readonly bool _trimStart;
+    private readonly bool _trimEnd;
+    private readonly bool _ignoreCase;
+
     private HashSet<string>? _channels;
+
+    public XmlParser(ChannelsConfig channelsConfig)
+    {
+        channelsConfig.Bind();
+
+        _trimStart = channelsConfig.TrimStart;
+        _trimEnd = channelsConfig.TrimEnd;
+        _ignoreCase = channelsConfig.IgnoreCase;
+    }
 
     public void ParseGzip(string sourceFile, string resultFile, string channelsFile)
     {
@@ -43,13 +57,23 @@ public class XmlParser
     {
         using var reader = new StreamReader(channelsFile);
 
-        _channels = new();
+        StringComparer comparer = _ignoreCase
+            ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+
+        _channels = new(comparer);
 
         string line;
 
         while ((line = reader.ReadLine()!) != null)
         {
-            _channels.Add(line);
+            if ((_trimEnd || _trimStart) && TryTrimString(line, out string? result))
+            {
+                _channels.Add(result!);
+            }
+            else
+            {
+                _channels.Add(line);
+            }
         }
     }
 
@@ -107,7 +131,31 @@ public class XmlParser
         return false;
     }
 
-    #region General
+    #region General purpose
+
+    // to provide only one extra string allocation if trim happened
+    private static bool TryTrimString(string source, out string? result)
+    {
+        int start = 0;
+
+        while (start < source.Length && char.IsWhiteSpace(source[start]))
+        {
+            start++;
+        }
+
+        int end = source.Length;
+
+        while (end > start && char.IsWhiteSpace(source[end - 1]))
+        {
+            end--;
+        }
+
+        bool trimmed = end < source.Length || start > 0;
+
+        result = !trimmed ? null : source[start..end];
+
+        return trimmed;
+    }
 
     private static XmlReaderSettings GetReaderSettings()
     {

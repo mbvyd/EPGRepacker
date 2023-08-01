@@ -23,6 +23,7 @@ public static class Bootstrapper
     public static void Bootstrap()
     {
         Container.Register<EpgConfig>();
+        Container.Register<ChannelsConfig>();
         Container.Register<WebConfig>();
         Container.Register<FtpConfiguration>();
         Container.Register<TempDirConfig>();

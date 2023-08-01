@@ -8,6 +8,7 @@ namespace Configuration.Models;
 public class AllConfig
 {
     public IEnumerable<EpgItemConfig>? Epg { get; set; }
+    public ChannelsConfig? Channels { get; set; }
     public WebConfig? Web { get; set; }
     public IEnumerable<FtpItemConfig>? Ftp { get; set; }
     public TempDirConfig? TempDir { get; set; }
