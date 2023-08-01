@@ -1,5 +1,5 @@
 # EPG Repacker
-Console app which takes EPG source file (XML in [XMLTV](https://wiki.xmltv.org/index.php/XMLTVFormat) format -- `.xml` or `gz.xml`), extract data for set of channels and save to result file (`.xml` or `gz.xml`). 
+Console app which takes EPG source file -- XML in [XMLTV](https://wiki.xmltv.org/index.php/XMLTVFormat) format (may be gzipped), extract data for set of channels and make new XMLTV file. 
 Multiple EPG sources can be processed in one run.
 
 # Build
