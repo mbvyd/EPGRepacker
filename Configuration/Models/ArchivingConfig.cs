@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO.Compression;
-using Configuration.Loader;
-using Microsoft.Extensions.Configuration;
 
 namespace Configuration.Models;
 
@@ -16,12 +14,9 @@ public class ArchivingConfig : IBindable
 
     public void Bind()
     {
-        IConfigurationSection section = ConfigLoader.Load()
-            .GetSection(nameof(ConfigSection.Archiving));
-
         ArchivingConfigRaw archivingRaw = new();
 
-        section.Bind(archivingRaw);
+        archivingRaw.TryBindConfigSection(ConfigSection.Archiving);
 
         GzipCompression = string.IsNullOrEmpty(archivingRaw.GzipCompression)
             ? CompressionLevel.Optimal

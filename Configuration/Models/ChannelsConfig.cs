@@ -1,7 +1,4 @@
-﻿using Configuration.Loader;
-using Microsoft.Extensions.Configuration;
-
-namespace Configuration.Models;
+﻿namespace Configuration.Models;
 
 public class ChannelsConfig : IBindable
 {
@@ -11,9 +8,6 @@ public class ChannelsConfig : IBindable
 
     public void Bind()
     {
-        IConfigurationSection section = ConfigLoader.Load()
-            .GetSection(nameof(ConfigSection.Channels));
-
-        section.Bind(this);
+        this.TryBindConfigSection(ConfigSection.Channels);
     }
 }

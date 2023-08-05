@@ -1,7 +1,4 @@
-﻿using Configuration.Loader;
-using Microsoft.Extensions.Configuration;
-
-namespace Configuration.Models;
+﻿namespace Configuration.Models;
 
 public class TempDirConfig : IBindable
 {
@@ -16,10 +13,7 @@ public class TempDirConfig : IBindable
         // (e.g., while reading whole config)
         if (Path == null)
         {
-            IConfigurationSection section = ConfigLoader.Load()
-            .GetSection(nameof(ConfigSection.TempDir));
-
-            section.Bind(this);
+            this.TryBindConfigSection(ConfigSection.TempDir);
         }
 
         if (string.IsNullOrWhiteSpace(Path))
