@@ -87,7 +87,7 @@ public class FtpEngine : IDisposable
         }
         catch (Exception ex)
         {
-            Log.Information("Faile to get FTP server's filesystem permissions for '{0}'.", remoteFile);
+            Log.Information("Failed to get FTP server's filesystem permissions for '{0}'.", remoteFile);
             LogHelpers.LogMessage(ex, LogKind.Information);
         }
 

@@ -49,6 +49,7 @@ internal class Program
             options.ChannelsPath = epgItem.Channels;
             options.SourcePath = epgItem.Source?.Path;
             options.SourceHashPath = epgItem.Source?.HashPath;
+            options.IgnoreHash = string.IsNullOrWhiteSpace(epgItem.Source?.HashPath);
             options.ResultPath = epgItem.Result?.Path;
             options.FtpConfig = ftpConfig.Get(epgItem.Result?.Ftp);
 

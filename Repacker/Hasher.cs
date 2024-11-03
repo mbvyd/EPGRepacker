@@ -9,27 +9,27 @@ namespace RepackerRoot;
 public class Hasher
 {
     private string? _hashPath;
-    private bool _isValidStorage;
+    private bool _inited;
 
-    public void Init(string? saveHashPath)
+    public void Init(string saveHashPath)
     {
         _hashPath = saveHashPath;
-        _isValidStorage = !string.IsNullOrWhiteSpace(_hashPath);
+        _inited = true;
     }
 
     public bool TryCalcSaveHash(string filePath)
     {
-        return _isValidStorage &&
-            TryCalculateHash(filePath, out string? hash) &&
-            TrySaveHash(hash!);
+        return _inited
+               && TryCalculateHash(filePath, out string? hash)
+               && TrySaveHash(hash!);
     }
 
     public bool IsHashMatchesSaved(string filePath)
     {
-        return _isValidStorage &&
-            TryGetSavedHash(out string? savedHash) &&
-            TryCalculateHash(filePath, out string? newHash) &&
-            string.Equals(savedHash, newHash);
+        return _inited
+               && TryGetSavedHash(out string? savedHash)
+               && TryCalculateHash(filePath, out string? newHash)
+               && string.Equals(savedHash, newHash);
     }
 
     private static bool TryCalculateHash(string filePath, out string? hash)

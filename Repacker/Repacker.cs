@@ -23,6 +23,7 @@ public class Repacker
     private string? _resultFile;
     private string? _channelsFile;
 
+    private bool _isWorkWithHashes;
     private bool _isSourceDownloaded;
     private bool _isResultUploadNeeded;
     private bool _isResultPackingNeeded;
@@ -52,7 +53,7 @@ public class Repacker
     {
         Init(options);
 
-        if (IsAbortDueToMatchingHash(options.IgnoreHash))
+        if (_isWorkWithHashes && IsAbortDueToMatchingHash())
         {
             return;
         }
@@ -70,7 +71,11 @@ public class Repacker
             Upload(parsed: parsedFile, packed: packedFile);
         }
 
-        TrySaveHash();
+        if (_isWorkWithHashes)
+        {
+            _hasher.TryCalcSaveHash(_sourceFile!);
+        }
+
         TryCleanupTemp(parsed: parsedFile, packed: packedFile);
     }
 
@@ -81,6 +86,7 @@ public class Repacker
         _sourceFile = options.SourcePath;
         _resultFile = options.ResultPath;
         _channelsFile = options.ChannelsPath;
+        _isWorkWithHashes = !options.IgnoreHash;
 
         (bool downloaded, string source) =
             TryDownloadSourceAsync(options.SourcePath!).Result;
@@ -91,22 +97,26 @@ public class Repacker
         _isResultPackingNeeded = IsGzipArchive(_resultFile!);
         _isResultUploadNeeded = options.FtpConfig != null;
 
-        _hasher.Init(options.SourceHashPath!);
+        if (_isWorkWithHashes)
+        {
+            _hasher.Init(options.SourceHashPath!);
+        }
+
         _ftpEngine.Init(options.FtpConfig);
     }
 
-    private bool IsAbortDueToMatchingHash(bool ignoreHash)
+    private bool IsAbortDueToMatchingHash()
     {
-        if (!ignoreHash && _hasher.IsHashMatchesSaved(_sourceFile!))
+        if (!_hasher.IsHashMatchesSaved(_sourceFile!))
         {
-            Log.Information("Processing of file '{0}' is canceled as it's hash is known.", _sourceFile);
-
-            TryCleanupTemp(null, null);
-
-            return true;
+            return false;
         }
 
-        return false;
+        Log.Information("Processing of file '{0}' is canceled as it's hash is known.", _sourceFile);
+
+        TryCleanupTemp(null, null);
+
+        return true;
     }
 
     private static void EnsureValidOptions(RepackerOptions options)
@@ -143,8 +153,8 @@ public class Repacker
 
     private string Parse()
     {
-        // if uploading to FTP server is needed, then after upload temp file should be
-        // deleted; if packing is needed, then it is done through temp file;
+        // if uploading to FTP server is needed, then temp file should be deleted
+        // after upload; if packing is needed, then it is done through temp file;
         // in other cases parsing is done directly to specified (in settings) result file
         string resultFile = _isResultUploadNeeded || _isResultPackingNeeded
             ? PathHelpers.PickRandomFilePath(_tempDir)
@@ -242,10 +252,5 @@ public class Repacker
                 Log.Debug("Deleted temp folder '{0}'.", _tempDir);
             }
         }
-    }
-
-    private bool TrySaveHash()
-    {
-        return _hasher.TryCalcSaveHash(_sourceFile!);
     }
 }
